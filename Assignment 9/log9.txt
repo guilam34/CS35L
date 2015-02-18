@@ -1,0 +1,38 @@
+To generate 10M floating point numbers, we called "od -An -f -N 10M /dev/urandom."
+The -An option suppressed the file offsets that would normally be printed for each
+number generated. The -f option specified the for od to generate floating point numbers.
+The -N option with a number following it specified how many numbers to generate. I then
+piped the output of od line by line to a text file using "tr -s ' ''\n' >random.txt" The
+-s option squeezed all recurring instances of the following character, a space, together
+and replaced them with a newline character. Then I went into the newly generated text
+file to remove a new line at the last line
+
+Next I ran "time -p sort -g --parallel 'N' >/dev/null" in order to compare run times for
+parallelizations of different numbered threads. N in the command above represents the
+number of parallel threads. The output was as follows:
+
+1 Thread
+real 5.54
+user 5.52
+sys 0.02
+
+2 Threads
+real 3.44
+user 6.33
+sys 0.03
+
+4 Threads
+real 2.07
+user 6.67
+sys 0.03
+
+8 Threads
+real 1.47
+user 7.6
+sys 0.03
+
+As we can see, the real time decreases as we increase the number of threads since we
+have multiple cores working on the same file at once. The user time increases however,
+as parallellization also uses cpu; the user time combines the parallelization times with
+the time that it would take to run all other processes as well when sorting under one
+thread." System time is simply time spent accessing the disk.

@@ -1,0 +1,17 @@
+2014-11-05 Guillaume Lam <guillaum@lnxsrv02.seas.ucla.edu>
+
+	   *src/ls.c: Added two if statements to cmp_mtime to prevent error from overflow.		 Dates dates prior to 1970-01-01 will be sorted correctly by ls.
+
+--- src/ls.c~	2014-11-05 14:19:22.549856000 -0800
++++ src/ls.c	2014-11-05 14:20:08.051153000 -0800
+@@ -2879,6 +2879,10 @@
+ {
+   int diff = timespec_cmp (get_stat_mtime (&b->stat),
+ 			   get_stat_mtime (&a->stat));
++  if((&b->stat.st_mtim.tv_sec < &a->stat.st_mtim.tv_sec) && diff>0)
++    diff=diff*-1;
++  else if ((&b->stat.st_mtim.tv_sec > &a->stat.st_mtim.tv_sec) && diff<0)
++    diff*=diff*-1;
+   return diff ? diff : cmp (a->name, b->name);
+ }
+ static int compare_mtime (V a, V b) { return cmp_mtime (a, b, xstrcoll); }

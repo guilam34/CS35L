@@ -1,0 +1,20 @@
+Guillaume Lam 304253718
+
+Q1: Since we remove the only code in ls that uses "case_long_
+iso_time_style," the case is not necessary, but in order to
+declutter the code we remove it.
+
+Q2: The patch would be problematic in that there is no way to
+make sure that everything uses the same format as the three
+field format we set in the assignment. We would have to manaully
+change the time formatting if the locale was different since the
+modification in the assignment was only for US UTF-8.
+
+Q3:The command stops running and outputs text from the traceback
+command. The traceback command explains that there is an index
+error which occurs when there is an empty file.
+
+Q4:There is a syntax error because Python 3.0+ cannot iterate
+through the list of arguments unlike Python 2. This functionality
+is called automatic tuple unpacking and is limited to versions of
+Python below 3.0.

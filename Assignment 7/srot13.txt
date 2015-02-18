@@ -1,0 +1,14 @@
+On average the compiled srot13u program was much slower than srot13 due to the
+fact that it makes system calls for every byte in the input file. It is
+important to note however that for small files srot13 and srot13u exhibit
+little to no performance differences due to the individual system calls in
+srot13u not being substantial enough to affect the overall runtime of the
+program.
+
+Small file:
+srot13: 0.003s
+srot13u: 0.002s
+
+Large file:
+srot13: 2.037s
+srot13u: 6.345s

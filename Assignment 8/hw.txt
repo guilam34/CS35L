@@ -1,0 +1,26 @@
+1. Setting up the amazon server was simply a matter a following instruction prompted by the UI.
+
+Once I managed to connect to the server, I called wget http://$(python -c 'print "AAA"*n') with the n in the command being in powers of 10.
+
+I somewhat managed to reproduce the error when n was 100000000 with the server outputting the message:
+   xmalloc: cannot allocate 300000008 bytes (90177536 bytes allocated)
+   Connection to 54.149.33.77 closed
+There appeared to be guards against overflow in place so I could not cause the server to crash.
+
+2. VU 505120: The ability to remotely execute code regardless of privilege
+      level gives the attacker full control of both server and client domain
+   VU 252743: The ability to remotely execute code by expoiting bash would
+      potentially give the attacker full network control depending on the
+      privilege level of the application in which the bash function is called.
+      Lower prioity than 505120 due to the fact that it is restricted by the
+      application's privileges
+   VU 213119: The ability to grant the attacker full domain control is
+      dangerous but less so that the VUs above due to the fact that this is
+      isolated on a single domain rather than over an entire network
+   VU 447516: Access to sensitive information on a router could open gates
+      for more dangerous attacks due to the attacker possing network
+      information
+   VU 720951: The ability to repeatedly retrieve data does not necessarily
+      mean that the attacker would instantaneously be able to retrieve all
+      sensitive, secret data. Only dangerous if user/network being attacked
+      is in possession of sensitive data.

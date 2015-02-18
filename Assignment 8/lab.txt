@@ -1,0 +1,91 @@
+1. First I downloaded the tar.gz file from the class page and copied it over
+to the seasnet server using winscp. I then unziped the file using "tar xvf
+sthhtpd-2.26.4." Then I went into the newly created directory's src folder in
+order to apply the patch manually to the file thttpd.c. I used the command
+"M-g g 1600" to quickly get to the line that I was supposed to change. Then
+I simply ran the ./configure and make commands within the shttpd directory.
+To test run the command, I went into the direcotry's src folder and ran
+"./thttpd -p 8080" with the port number being within the range that the
+lecture slides so to do. 
+
+2. To verify the web server works in normal cases, I did a simple request
+"wget http://localhost:12320" which worked correctly. This created a file
+called index.html which simply returned an html version of the current
+directory.
+
+3. To crash the server, I sent a request with an appropriately long sequence
+of A's, 3000 in this case. I used the command "wget http://localhost:12320/
+$(python -c 'print "AAA"*1000')" with the python command being used
+to substitute for the 3000 A's.
+
+4. Since I worked with linux in during this lab, I was able to open to
+terminals with one window running the server under GDB and one window issuing
+the crash request. After sending the crash request in one window, I called
+backtrace on the gdb window and got the following:
+   #0  0x00000037eec79ded in _int_malloc () from /lib64/libc.so.6
+   #1  0x00000037eec7a636 in calloc () from /lib64/libc.so.6
+   #2  0x00000037eec6f22d in open_memstream () from /lib64/libc.so.6
+   #3  0x00000037eece4c7b in __vsyslog_chk () from /lib64/libc.so.6
+   #4  0x00000037eec7078e in __libc_message () from /lib64/libc.so.6
+   #5  0x00000037eec76166 in malloc_printerr () from /lib64/libc.so.6
+   #6  0x00000037eec7bc27 in _int_realloc () from /lib64/libc.so.6
+   #7  0x00000037eec7bde5 in realloc () from /lib64/libc.so.6
+   #8  0x0000000000406c9a in httpd_realloc_str (strP=strP@entry=0x1493b10,
+       maxsizeP=maxsizeP@entry=0x1493b18, size=<optimized out>) at libhttpd.c:7		15
+   #9  0x0000000000404fb2 in handle_read (tvP=0x7fff7fa0abd0, c=0x7fc525772010)
+           at thttpd.c:1596
+   #10 main (argc=<optimized out>, argv=<optimized out>) at thttpd.c:802
+
+5. One exploit would be modifying the return address of the stack to redirect
+to malicious code. You would do this by overflowing the buffer so that the
+returne address for the stack that you are targeting would be overwritten
+with the address of your malicious code.
+	   
+6. To generate the file without a stack protector, I ran "gcc -S thttpd.c -o
+thttpd-nostackprot.s -fno-stack-protector -I . -I .." To generate the file
+with a stack protector, I ran "gcc -S thttpd.c -o thttpd-stackprot.s
+-fstack-protector -I . -I .." The -I options are to signify where to search
+for header files no in thttpd.c's directory. I then called "diff thttpd
+-stackprot.s thttpd-nostackprot.s >diff.txt" which I then opened up to
+look at the differences between files. The file without a stack protector
+looked to be more efficient simply due to the fact that since it did not
+need to implement a stack protector, it had less calls made. To determine
+which functions where called in the file with the stack protector but not
+in the one without a stack protector, I ran diff again, this time piping
+the output to "grep call" which listed all the differing function calls
+made. As expected, they were all function calls made to ensure stack
+protection.
+
+7. To use the address sanitizer option, I first cleaned makefile using "make
+clean" and called the make command specified in the assignment instructions.
+The output of gdb upon issuing the same crashing request to the same port was
+as follows:
+   [Inferior 1 (process 27292) exited with code 01]
+This occurs due to the fact that the address sanitizer is able to detect
+memory errors and in this case it is able to detect the overflow that would
+occur due to the request. The fsanitize option kills the process before the
+overflow and subsequent server crash can occur.
+
+8. To create the .s file required in this step, I called "gcc -m32 -S thttpd.c
+-o thttpd-sanitize.s -fstack-protector -fsanitize=address -I . -I .."
+Generating a diff file from thttpd-sanitize.s and thttpd-stackprot.s, thttpd
+-sanitize.s looks much less efficient due to the fact that it has many more
+function calls.
+
+9. The output from valgrind after running it on the web server is as follows:
+   ==30628== Memcheck, a memory error detector
+   ==30628== Copyright (C) 2002-2012, and GNU GPL'd, by Julian Seward et al.
+   ==30628== Using Valgrind-3.8.1 and LibVEX; rerun with -h for copyright info
+   ==30628== Command: src/thttpd -p 12320
+   ==30628==
+   ==30628==
+   ==30628== HEAP SUMMARY:
+   ==30628==     in use at exit: 0 bytes in 0 blocks
+   ==30628==   total heap usage: 12 allocs, 12 frees, 3,318 bytes allocated
+   ==30628==
+   ==30628== All heap blocks were freed -- no leaks are possible
+   ==30628==
+   ==30628== For counts of detected and suppressed errors, rerun with: -v
+   ==30628== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 6 from 6)
+From the output, it seems that valgrind is a memory error detector, managing
+heap usage and memory leaks.

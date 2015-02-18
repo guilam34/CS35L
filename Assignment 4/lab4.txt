@@ -1,0 +1,21 @@
+In order to download a copy of the Diffutils repository, I ran the command " git clone git://git.savannah.gnu.org/diffutils.git" like the web page linked to in the first step of the homework said to.
+
+To put the list of tags and log of changes for Diffutils into their respective files, I called "git log" and "git tag" and directed their output into the files "git-log.txt" and "git-tag.txt."
+
+In order to find the commit entitled "maint:quote...." in number 4 of the lab, I opened up the git-log.txt and did and i-search for it. Once I found it, I copied the hash associated with it and from the emacs editor, ran the shell command "git show <hash> > quote-patch.txt". This generated a patch for that specific commit and outputed it to the file quote-patch.txt
+
+To patch version 3.0 of the repository I ran the patch command from the diffutils directory with a -p1 option. That is because file names in the patch file have a leading slash which cannot be interpreted correctly by the patch command. In order for the patch command to be able to go into the specified directories and files, we need to strip the leading slash with a -pNUM option of 1. Patching failed for 3 out of 14 hunks in diff.c and for 1 out of 9 hunks in diff3.c.
+
+After calling git status after patching, it showed that files other than c files were modified. From the list of modified files that showed up, I looked for ones that weren't in the src directory of diffutils. I went into emacs for the current version of each of those files and ran checked if there was anything changed with the vc-diff function. For each file that had a change appear through vc-diff, I called vc-revert to revert it back to its original state like the assignment requires.
+
+As for the non-string constants within .c files, I simply called vc-diff and went through each change individually, reverting all the hunks that weren't changes to string constants.
+
+Next I had to manually edit the files diff.c and diff3.c since they were the source files with .rej files generated upon patching. I would open each of them in eamcs with the respective .rej files, using i-searches and m-g g to find the parts to change based on the .rej files. 
+
+Then I directed the output of git diff into the file quote-3.0-patch.txt. I also piped it to wc in order to check if the number of lines was between 300 to 400.
+
+To build diffutils, I simply read the README-hacking file and followed the instructions.
+
+In order to do a test of the modified DiffUtils, I first added and committed all the modified files. Then I cloned this modified branch to diffutils-3.0-patch and went up one level to clone the original diffutils into diffutils-3.0. Since the original diffutils wasn't v3.0, I went into diffutils-3.0 and checked out v3.0 of the source code. Then I went up one level and ran the modified diff, outputting the results into the designated file quote-3.0-test.txt.
+
+Running diff on quote-3.0-test.xt and quote-3.0-patch.txt, around 280 lines where returned but the differences were innocuous as they were caused by the diffs generated due to diffutils-3.0 and diffutils-3.0-patch being different branches. This is different from git diff which just notes the diffs between the original checkout and the modified version.

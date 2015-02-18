@@ -1,0 +1,31 @@
+First I wrote the program catu.c. That simply involved calling creating a while
+loop with the condition of "read(0,&buffer,1) >0" since if read() returned a
+negative value then then we had reached the end of the standard input. Inside
+the while loop was simply "write(1,&buffer,1)" which would write the read
+character in the buffer to the output.
+
+Then I wrote the program catb.c. The structure was the same as for catu.c
+except the while loop's condition was "buffer=getchar()!=EOF" where EOF was the
+special end of file character. Inside the loop I accessed the character
+obtained from getchar by referencing the buffer. I then had the character
+"outputted" by calling putchar(&buffer).
+
+As for creating a file of at least 5 million bytes, I simply called the dd
+function in the linux library, using /dev/urandom to generate random contents
+in the file. I set the blocksize to 1 million and the count to 5.
+
+In order to be able to test the programs, I then ran the gcc compiler to create executable files.
+
+I then ran strace when copying one file to another. catu took a very long time
+to complete since system calls werebeing made for every character in the input
+file which was 5 million bytes. catb on the other hand took much less time
+since system calls were being made for groups of characters, thereby greatly
+reudcing runtime when copying files.
+
+strace when copying a file to the terminal resulted in the same situation, catb
+being much faster than catu.
+
+Next I ran the command  time when copying one file to another. This resulted
+in catb being much faster than catu, with catb taking 0.0004 seconds and
+catu taking approximately 6 seconds.
+

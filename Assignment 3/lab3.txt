@@ -1,0 +1,34 @@
+Guillaume Lam 304253718
+
+First I downloaded Coreutils 7.6 and saved it to my desktop. Then
+I used WinSCP to move the .tar file to the seasnet server where I
+unpacked it with the "tar" command.
+
+Next I created a directory called coreutilsInstall which is where
+CoreUtils 7.6 would be installed. After that I went into the CoreUtils
+directory that was created from unpacking the .tar file and ran
+"./configure" with the prefix set to the directory coreutilsInstall.
+Then I called "make" and "make install" to finish installing CoreUtils.
+
+Then I set the locale to UTF be calling "export LC_ALL='en_US.UTF-8'"
+to check if the problem described in the assignment spec was generated
+when I called "ls -l /bin/bash." The problem did end up being generated
+so I could proceed with the assignment instructions.
+
+After that I went into the src folder in Coreutils-7.6 and opened ls.c
+in the emacs editor. I called "M-g g" to jump to the lines numbers
+specified in the patch, and inserted and removed lines as necessary.
+
+We get rid of "case_long_iso_time_style" because it is only used in
+the for loop beginning at around line 2029. We retain "case
+long_iso_time_style" because we still need for it to be able to be
+externally called in case we need it for other commands. As for
+deleting the large chunk of code around line 2029, it is because we
+want to constantly remain in POSIX format, and as a result we can
+just use the same code "long_time_format[i]=dcgettext(NULL, long
+_time_format[i], LC_TIME)" for each iteration of the loop.
+
+I then called "make" again to recompile everything and instead of
+running "ls" I ran "./ls" since the modified ls executable was not
+installed but simply compiled. The change to the executable fixed
+the bug described in the assignment spec and so the lab was finished.

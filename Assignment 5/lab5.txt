@@ -1,0 +1,24 @@
+I first downloaded the tar file from the class page, moving it to the linux server with winscp and decompressing it with the command "tar -zxvf coreutils-with-bug.tar.gz."
+
+I then went into the folder for coreutils-with-bug and ran "./configure CFLAGS="-g"" like the TA said to do.
+
+Then I ran make to compile the file.
+
+I obtained the patch linked to in the assignment spec with wget and applied it with "patch -p0 < coreutils.diff"
+
+I then rebuilt the file and checked if it compiled correctly by going into the source folder and running "./ls"
+
+The problem with the old version of coreutils is that there was a function named futimens in coreutils that had already been declared in other header files.
+As a result we could not run "make" before applying the patch, which renamed futimens.
+
+I reproduced the error by following the example outlined in the assignment spec, replacing the ls in the example with the path to the ls built in coreutils-with bug.
+
+I then opened up ls.c in emacs and did and i-search for "mtime" as that is how files in the example with the error are sorted. I found the function compare_mtime which was the source of the problem.
+The function did not account for overflow when comparing tv_sec values for files. This would cause problems such as older files being intepreted to be newer files and thus being improperly sorted.
+All I did was add two if statements that would account for overflow.
+
+To generate the patch, I ran "diff -u ls.c~ ls.c>lab5.diff" where ls.c~ is the original version of ls.c upon configuration. I then manually editted in the changelog entry into the diff file.
+
+When trying to reproduce the problem in the home directory, dates before 1970 become future dates.
+This is due to the fact that the SEASnet home directory is a 32-bit directory whereas the tmp directory you make in the example is a 64-bit directory.
+Another thing to note is the differently formatted dates in ls's output when called in the home directory. For example 2004-02-05 in the tmp directory would be Feb 5 2004 in the home directory.

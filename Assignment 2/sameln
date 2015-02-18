@@ -1,0 +1,46 @@
+#!/bin/bash
+IFS=$'\n'
+
+dir=$1
+
+files=`ls -A ${dir}`
+
+declare -a ARRAY
+ 
+let COUNT=0
+
+
+for FILE in $files
+do
+    if [ ! -L "$dir/$FILE" ]
+    then
+	if [ ! -d "$dir/$FILE" ]
+	then
+	    if [ -f "$dir/$FILE" ]
+	    then
+		ARRAY[$COUNT]="$dir/$FILE"
+		let COUNT=COUNT+1
+	    else
+		echo "$dir/$FILE is not a readable file!"
+	    fi
+	fi
+    fi
+done
+
+for ((i=0; i<$COUNT; i++))
+do
+    for ((k=0; k<$COUNT; k++))
+    do
+	cmp -s "${ARRAY[$i]}"  "${ARRAY[$k]}"    
+	RQ=$?
+	if [ $RQ -eq 0 ]
+	then
+	    if [ $i -lt $k ] 
+	    then
+		ln -f -- "${ARRAY[$i]}" "${ARRAY[$k]}" 
+		ARRAY[$k]="${ARRAY[$i]}"		
+	    fi
+	fi
+    done
+done
+		

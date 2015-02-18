@@ -1,0 +1,13 @@
+2. To create a new branch of version 3.0 or Diffutils, I called "git checkout v3.0 -b quote".
+
+3. Then I patched the branch with quote-3.0-patch.txt with "patch -p1 <../quote-3.0-patch.txt" since my quote-3.0-patch.txt was outside the diffutils directory.
+
+5. I opened up ChangeLog and ChangeLog-2008 simultaneously with emacs. Then I referred to the old changelog to see how I should format the new changelog. Since all files in the patch are modified the same way, I put the same message for all the files which was "replaced backticks with apostrophes for string constants."
+
+6. I then added and committed all the files with "git add *.c" and "git commit -af ChangeLog"
+
+7. After that I used "git format-patch -1 --stdout>formatted-patch.txt" to generate a patch for the commit. the -1 denotes the number of commits from the top to generate the patch from, and the --stdout allows us to specify the output file.
+
+8. To test whether the formatted patch was correct, I called "git checkout v3.0 -b partner" to create a temporary branch to test the patch on. I then called "git am < ../formatted-patch.txt" to apply the patch since I moved formatted-patch.txt outside of diffutils before this step. Finally I built the Diffutils like in step 14 of the lab to see whether or not the patch was applied correctly by using "make check"
+
+9. Running "make distdir" and then "diffutils*/ChangeLog" I managed to get the same ChangeLog as the one I wrote, and as a result ChangeLog worked.
